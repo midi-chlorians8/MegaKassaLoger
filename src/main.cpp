@@ -1,29 +1,27 @@
 #include <Arduino.h>
-#include "GyverButton.h" 
+//#include "GyverButton.h" 
 
 #define Line1_PIN1 2
 #define Line1_PIN2 3  
 
-GButton butt1(PIN2);
-GButton butt2(PIN3);
+//GButton butt1(Line1_PIN1);
+//GButton butt2(Line1_PIN2);
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200); while(!Serial){}
-  Serial3.begin(9600);  //while(!Serial3){}
-  Serial3.println("BT Started");
+ // Serial3.begin(9600);  //while(!Serial3){}
+ // Serial3.println("BT Started");
+ pinMode(Line1_PIN1,INPUT_PULLUP);
+ pinMode(Line1_PIN2,INPUT_PULLUP);
 }
+
+
 
 void loop() {
-    butt1.tick();   butt2.tick(); //Опрос обоих переключатилей линии 1
-      if (butt1.isSingle()) Serial.println("Single butt1");     // проверка на один клик
-      if (butt2.isSingle()) Serial.println("Single butt2");     // проверка на один клик
+Serial.print("Line1Pin2:"); Serial.print(digitalRead(2));
+Serial.print(" Line1Pin3:"); Serial.println(digitalRead(3));
 
 
 
-      
-  int i;
-  i++;
-  i++;
-  i+=5;
-  Serial.println(i);
 }
+
