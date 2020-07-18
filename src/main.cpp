@@ -122,11 +122,16 @@ void ObrabotkaOneSide(String NameLine,int8_t pin,int8_t pin2,uint16_t& Line_coun
        WaitObrabotkaButt = millis(); //Serial.println ("10 seconds");
  }
 }
-
+unsigned long timingRefresh; // Переменная для хранения точки отсчета
 void loop() {
-  RtcDateTime now = Rtc.GetDateTime(); // Обновляем время
-  printDateTime(now); // Передаём изменённое время в функцию откуда извлекаем его сами
+if (millis() - timingRefresh > 1000){ // Вместо 10000 подставьте нужное вам значение паузы 
+   RtcDateTime now = Rtc.GetDateTime(); // Обновляем время
+   printDateTime(now); // Передаём изменённое время в функцию откуда извлекаем его сами
+   timingRefresh = millis(); 
+}
 
+
+ 
   ObrabotkaOneSide("L1:",Line1_PIN1,Line1_PIN2,Line1_countToday); // захват прохода в одну сторону. Уведичение счётчика переданной линии
   //ObrabotkaOneSide(Line1_PIN1,Line1_PIN2,Line1_countToday);
 }
