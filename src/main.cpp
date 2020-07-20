@@ -1,14 +1,20 @@
 #include <Arduino.h>
 #include <Definition.h>
 //EEPROM
-#include <EEPROM.h>
+//#include <EEPROM.h>
 
+
+#include <Eeprom_at24c256.h>
+Eeprom_at24c256 eeprom(0x50);
+int eeAddress = 100;
+/*
 struct MyObject {
   byte NameLine;
   int Line_countToday;
   char Date_time[20];
 };
 int eeAddress = 0;   //Location we want the data to be put.
+*/
 //EEPROM
 void setup() {
   Serial.begin(19200); while(!Serial){}
@@ -53,6 +59,18 @@ void setup() {
         }
     }
   // RTC
+
+  //ExtEEPROM
+  // Первое чтение (без него похоже не пишет) 32700/30 = 1090 и минус 100 так как пишем с 100го адреса
+  char message[27]; //buffer
+  for (int i = 0; i < 990; i++) {
+    eeprom.read(eeAddress, (byte *) message, sizeof(message));
+    Serial.println(message);
+    eeAddress += 30; // Сдвиг адреса
+  }
+  // Первое чтение (без него похоже не пишет) 32700/30 = 1090 и минус 100 так как пишем с 100го адреса
+  eeAddress = 100;    Serial.println();
+  //ExtEEPROM
 }
 
 
@@ -89,13 +107,26 @@ void ObrabotkaOneSide(String NameLine,int8_t pin,int8_t pin2,uint16_t& Line_coun
         //Serial.print(F("Proxod Dobavlen:")); Serial.print(F("TB1-TB2)<0 "));       Serial.print(NameLine); Serial.print(F("Line_countToday:"));        Serial.print(Line_countToday); Serial.print(" ");        Serial.print(MyDateTimeStr); Serial.println();
         
         DataStr=NameLine + Line_countToday + " " + MyDateTimeStr;
-        Serial.print("DataStr");Serial.println(DataStr);
+        Serial.print("DataStr:");Serial.println(DataStr);
+
+
         // Тут можно подцепится запись в EEPROM
+        /*
+        char dataFileName[sizeof(MyDateTimeStr)];
+        MyDateTimeStr.toCharArray(dataFileName, sizeof(dataFileName));
         MyObject customVar = {
          NameLine,
-         65,
-        "07/19/2020 14:11:39"
+         Line_countToday,
+         dataFileName
   };
+    EEPROM.put(eeAddress, customVar);
+    */
+         char dataFileNameBuf[27];  DataStr.toCharArray(dataFileNameBuf, 27);
+         eeprom.write(eeAddress, (byte*) dataFileNameBuf, sizeof(dataFileNameBuf));
+         Serial.println("write EEPROM done, reading");
+
+         eeAddress += 30; // Сдвиг адреса
+
         OneZjmyakButFirst=false; OneZjmyakButSecond=false; // Перезаряд
       }
       //if( (TimingButt1-TimingButt2)>0  ){
