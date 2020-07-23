@@ -34,6 +34,7 @@ bool L2CanReadBool;
 
 // RTC
 String MyDateTimeStr;
+String MyMonth;
 #include <Wire.h> // must be included here so that Arduino library object file references work
 #include <RtcDS3231.h>
 RtcDS3231<TwoWire> Rtc(Wire);
@@ -41,9 +42,7 @@ RtcDS3231<TwoWire> Rtc(Wire);
 void printDateTime(const RtcDateTime& dt)
 {
     char datestring[20];
-    snprintf_P(datestring, 
-            countof(datestring),
-            PSTR("%02u/%02u/%04u %02u:%02u:%02u"),
+    snprintf_P(datestring,  countof(datestring), PSTR("%02u/%02u/%04u %02u:%02u:%02u"),
             dt.Month(),
             dt.Day(),
             dt.Year(),
@@ -56,3 +55,23 @@ void printDateTime(const RtcDateTime& dt)
 // RTC
 
 void PrintDebug(); // Прототип
+void Bluetooth();
+void ReadLineDays(const byte& Line,const byte& Days);// для BT
+void ReadAll();
+byte writeEEPROM (byte device, unsigned int addr, byte * data, byte len );
+byte writeEEPROM (byte device, unsigned int addr, byte data );
+byte readEEPROM (byte device, unsigned int addr, byte * data, byte len );
+byte readEEPROM (byte device, unsigned int addr );
+void TmimgRefresh();
+// BT
+String inputString = "";         // a String to hold incoming data
+bool stringComplete = false;  // whether the string is complete
+String teststring = "Hello User. Введи запрос в формате l2d2";
+
+byte EnteredLine; //Какую мы ввели линию чтоб посмотреть распечатку лога с неё
+uint8_t posL;     //Позиция для парсинга
+byte EnteredDays; //Сколько мы ввели дней чтобы увидеть за сколько дней давать лог
+uint8_t posD;     //Позиция для парсинга
+#define resetPin  12
+// BT
+
