@@ -219,7 +219,7 @@ void PrintDebug(){
   static bool Endline = false; // Говорит нам о том что принятая строка закончилась
   #ifdef SendBT_Tubler
     if (Serial3.available() > 0) {
-      Serial.println("Serial3");
+     // Serial.println("Serial3");
     char inChar = (char)Serial3.read();
   #else
     while (Serial.available() > 0) {
@@ -473,7 +473,7 @@ void ReadLineDays(const byte& Line,const byte& Days){
      int8_t ZaxvatDayLastMonth; //Сколько дней надо захватить в прошлом месяце
      ZaxvatDayLastMonth=MonthArr[TodayMonth-1]+ DayOt; // Узнали с какого дня прошлого месяца будет начинать выводится информация
      
-     if(TodayMonth != 1){ // Если сейчас не первый месяц года (прикол с переходом через год - надо уменьшить год)
+     if(TodayMonth != 1 && TodayMonth != 3){ // Если сейчас не первый месяц года (прикол с переходом через год - надо уменьшить год) и не 2(February)
         #ifdef SendBT_Tubler
           Serial3.print(F("Будут выведены данные от "));  Serial3.print(ZaxvatDayLastMonth); Serial3.print(".");  Serial3.print(TodayMonth-1); Serial3.print("."); Serial3.print(TodayYear); 
           Serial3.print(" До "); Serial3.print(TodayDay); Serial3.print("."); Serial3.print(TodayMonth); Serial3.print("."); Serial3.println(TodayYear); 
@@ -483,10 +483,26 @@ void ReadLineDays(const byte& Line,const byte& Days){
         #endif
         
      }
-     else{ // в строке отсчёт от - уменьшить год на 1цу
+
+     else if(TodayMonth ==3 ){         // Обработка February
+        if(Days<=28){ //Если введённых дней 28 и меньше то отрабатывает корректно.
+            #ifdef SendBT_Tubler
+              Serial3.print(F("Будут выведены данные от "));  Serial3.print(ZaxvatDayLastMonth); Serial3.print(".");  Serial3.print(TodayMonth-1); Serial3.print("."); Serial3.print(TodayYear); 
+              Serial3.print(" До "); Serial3.print(TodayDay); Serial3.print("."); Serial3.print(TodayMonth); Serial3.print("."); Serial3.println(TodayYear); 
+            #else
+              Serial.print(F("Будут выведены данные от ")); Serial.print(ZaxvatDayLastMonth); Serial.print(".");  Serial.print(TodayMonth-1); Serial.print("."); Serial.print(TodayYear); 
+              Serial.print(" До "); Serial.print(TodayDay); Serial.print("."); Serial.print(TodayMonth); Serial.print("."); Serial.println(TodayYear); 
+            #endif
+        }
+        else{ // Если введённых дней больше 28 
+
+        }
+
+     }
+     else{ // в строке отсчёт от - уменьшить год на 1цу   <- Если первый месяц года
         #ifdef SendBT_Tubler
-         // Serial3.print(F("Будут выведены данные от ")); Serial3.print(ZaxvatDayLastMonth); Serial3.print(".");  Serial3.print(TodayMonth-1); Serial3.print("."); Serial3.print(TodayYear-1); 
-         // Serial3.print(" До "); Serial3.print(TodayDay); Serial3.print("."); Serial3.print(TodayMonth); Serial3.print("."); Serial3.println(TodayYear); 
+          Serial3.print(F("Будут выведены данные от ")); Serial3.print(ZaxvatDayLastMonth); Serial3.print(".");  Serial3.print(TodayMonth-1); Serial3.print("."); Serial3.print(TodayYear-1); 
+          Serial3.print(" До "); Serial3.print(TodayDay); Serial3.print("."); Serial3.print(TodayMonth); Serial3.print("."); Serial3.println(TodayYear); 
         #else // Тут переделать
           Serial.print(F("Будут выведены данные от ")); Serial.print(ZaxvatDayLastMonth); Serial.print(".");  Serial.print(TodayMonth-1); Serial.print("."); Serial.print(TodayYear-1); 
           Serial.print(" До "); Serial.print(TodayDay); Serial.print("."); Serial.print(TodayMonth); Serial.print("."); Serial.println(TodayYear); 
