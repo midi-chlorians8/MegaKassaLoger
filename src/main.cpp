@@ -484,7 +484,7 @@ void ReadLineDays(const byte& Line,const byte& Days){
         
      }
 
-     else if(TodayMonth ==3 ){         // Обработка February
+     else if(TodayMonth ==3 ){         // Обработка February . Стоим на месяце Март.
         if(Days<=28){ //Если введённых дней 28 и меньше то отрабатывает корректно.
             #ifdef SendBT_Tubler
               Serial3.print(F("Будут выведены данные от "));  Serial3.print(ZaxvatDayLastMonth); Serial3.print(".");  Serial3.print(TodayMonth-1); Serial3.print("."); Serial3.print(TodayYear); 
