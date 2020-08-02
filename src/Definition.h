@@ -275,4 +275,6 @@ void PinMode(){
   pinMode(Line13_PIN1,INPUT_PULLUP); pinMode(Line13_PIN2,INPUT_PULLUP);
   pinMode(Line14_PIN1,INPUT_PULLUP); pinMode(Line14_PIN2,INPUT_PULLUP);
   pinMode(Line15_PIN1,INPUT_PULLUP); pinMode(Line15_PIN2,INPUT_PULLUP);
+
+   pinMode(13,OUTPUT);
 }
