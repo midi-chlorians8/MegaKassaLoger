@@ -10,22 +10,23 @@ char EeAdrStrBuf[6]; // Промежуточный контейнер для з�
 byte MyArrayData[6]; // Контейнер в который перейдёт массив сhar
 byte ReadPolzunArr [sizeof MyArrayData]; //Массив для чтения ползун значения
 
-#define AllMemoryExtEE1_7Yach 4671
+#define AllMemoryExtEE1_7Yach 4087
 //                 1  2  3  4  5  6  7  8 9  10 11 12
 int8_t MonthArr[]={0,31,28,31,30,31,30,31,31,30,31,30,31};
 //EEPROM
 
-//#define SendBT_Tubler
+#define SendBT_Tubler
+#define Debug_Tubler
+
 
 void setup() {
  
   // BT
-  digitalWrite(resetPin, HIGH); delay(200); 
+  //digitalWrite(resetPin, HIGH); delay(200); 
 
-  pinMode(resetPin, OUTPUT);  // инициализируем цифровой пин в качестве выхода
+  //pinMode(resetPin, OUTPUT);  // инициализируем цифровой пин в качестве выхода
   Serial3.begin(115200);delay(200);  Serial3.println(teststring);
 
-  //inputString.reserve(200);
   // BT
   Serial.begin(115200);  delay(200);//while(!Serial){}
 
@@ -70,7 +71,7 @@ void setup() {
   //ExtEEPROM2
   byte err;
   #ifdef SendBT_Tubler
-  Serial3.print (F("I read. "));
+  //Serial3.print (F("I read. "));
   #else
   Serial.print (F("I read. "));
   #endif
@@ -85,71 +86,93 @@ void setup() {
 
 
 void ObrabotkaOneSide(const byte NameLine,int8_t pin,int8_t pin2,bool& CanReadBool,unsigned long& TimingButtFirst,unsigned long& TimingButtSecond,bool& OneZjmyakButFirst,bool& OneZjmyakButSecond,unsigned long& WaitObrabotkaButt){ //Функция должна при нажатии последовательно кнопки 1, а затем кнопки 2 увеличить глобальный счётчик прохода в линии
-
- //static bool CanReadBool = true;
  
  //Ввод значений нажатия кнопки. Результат нажатия були OneZjmyakBut1 и OneZjmyakBut2 
  if(CanReadBool == true){ //Если разрешено читать кнопки
     if(digitalRead(pin) == 0){ // Если нажата кнопка 1
-      if(OneZjmyakButFirst==false){
-      TimingButtFirst=millis(); // Присвоить значение таймера в переменную
-      //Serial.print("[pin]TimingButt1:");Serial.print("");Serial.print(" TimingButt2:");Serial.println();
-      OneZjmyakButFirst=true;
-      }
-  }
-    if(digitalRead(pin2) == 0){// Если нажата кнопка 2
-      if(OneZjmyakButSecond==false){
-      TimingButtSecond=millis(); // Присвоить значение таймера в переменную
-      //Serial.print("[pin2]TimingButt1:");Serial.print("");Serial.print(" TimingButt2:");Serial.println();
-      OneZjmyakButSecond=true;
+        if(OneZjmyakButFirst==false){
+            TimingButtFirst=millis(); // Присвоить значение таймера в переменную
+            //Serial.print("[pin]TimingButt1:");Serial.print("");Serial.print(" TimingButt2:");Serial.println();
+        OneZjmyakButFirst=true;
+        }
     }
-  }
+    if(digitalRead(pin2) == 0){// Если нажата кнопка 2
+        if(OneZjmyakButSecond==false){
+            TimingButtSecond=millis(); // Присвоить значение таймера в переменную
+            //Serial.print("[pin2]TimingButt1:");Serial.print("");Serial.print(" TimingButt2:");Serial.println();
+            OneZjmyakButSecond=true;
+        }
+    }
  }                      //Если разрешено читать кнопки
  //Ввод значений нажатия кнопки. Результат нажатия були OneZjmyakBut1 и OneZjmyakBut2 
  
  //Обработка значений. Прибавка счётчика нажатий
     if(OneZjmyakButFirst==true && OneZjmyakButSecond == true){ 
-    CanReadBool=false; // Запретить чтение кнопок
-      //if( (TimingButt1-TimingButt2)<0  ){
+        Serial.print("TimingButtFirst:");Serial.print(TimingButtFirst); Serial.print(" ");
+        Serial.print("TimingButtSecond:");Serial.print(TimingButtSecond);Serial.println();
+        CanReadBool=false; // Запретить чтение кнопок
+        //if( (TimingButt1-TimingButt2)<0  ){
         if( TimingButtFirst < TimingButtSecond  ){
-           if(eeAddress > 32700){  eeAddress = 10; }//Если всё заполнилось то пойти писать по второму кругу
+            if(eeAddress > 32700){  eeAddress = 10; }//Если всё заполнилось то пойти писать по второму кругу
         
-        //Line_countToday++; //Serial.print(F("Proxod Dobavlen:")); Serial.print(F("TB1-TB2)<0 "));       Serial.print(NameLine); Serial.print(F("Line_countToday:"));        Serial.print(Line_countToday); Serial.print(" ");        Serial.print(MyDateTimeStr); Serial.println();
-        // DataStr=String(NameLine) + " " + MyDateTimeStr  + " " + Line_countToday;  Serial.print("DataStr:");Serial.println(DataStr);
-      
-        // Формирование и запись последовательности данных в EEPROM 
-        byte Line = NameLine;       
-        writeEEPROM (rom, eeAddress, Line);     eeAddress+=1;
+            //Line_countToday++; //Serial.print(F("Proxod Dobavlen:")); Serial.print(F("TB1-TB2)<0 "));       Serial.print(NameLine); Serial.print(F("Line_countToday:"));        Serial.print(Line_countToday); Serial.print(" ");        Serial.print(MyDateTimeStr); Serial.println();
+            // DataStr=String(NameLine) + " " + MyDateTimeStr  + " " + Line_countToday;  Serial.print("DataStr:");Serial.println(DataStr);
+          
+            // Формирование и запись последовательности данных в EEPROM 
+            Serial.print("Proxod v VPERED: "); 
+            byte Line = NameLine; writeEEPROM (rom, eeAddress, Line);     eeAddress+=1;      
+            
+            byte Day = byte( MyDateTimeStr.substring(3,5).toInt()  );  writeEEPROM (rom, eeAddress, Day);      eeAddress+=1;  
+            byte Month=byte( MyDateTimeStr.substring(0,2).toInt()  );  writeEEPROM (rom, eeAddress, Month);    eeAddress+=1;             
+            byte Year = byte( MyDateTimeStr.substring(8,10).toInt());  writeEEPROM (rom, eeAddress, Year);     eeAddress+=1; 
 
-        byte Day = byte( MyDateTimeStr.substring(3,5).toInt()  );  
-        writeEEPROM (rom, eeAddress, Day);      eeAddress+=1;
-        byte Month=byte( MyDateTimeStr.substring(0,2).toInt()  );  
-        writeEEPROM (rom, eeAddress, Month);    eeAddress+=1;
-        byte Year = byte( MyDateTimeStr.substring(8,10).toInt());  
-        writeEEPROM (rom, eeAddress, Year);      eeAddress+=1;
+            byte Hour = byte( MyDateTimeStr.substring(11,13).toInt()); writeEEPROM (rom, eeAddress, Hour);     eeAddress+=1;
+            byte Min = byte( MyDateTimeStr.substring(14,16).toInt() ); writeEEPROM (rom, eeAddress, Min);      eeAddress+=1;
+            byte Sec = byte( MyDateTimeStr.substring(17,19).toInt() ); writeEEPROM (rom, eeAddress, Sec);      eeAddress+=1;
 
-        byte Hour = byte( MyDateTimeStr.substring(11,13).toInt()); 
-        writeEEPROM (rom, eeAddress, Hour);     eeAddress+=1;
-        byte Min = byte( MyDateTimeStr.substring(14,16).toInt() );  
-        writeEEPROM (rom, eeAddress, Min);      eeAddress+=1;
-        byte Sec = byte( MyDateTimeStr.substring(17,19).toInt() );     
-        writeEEPROM (rom, eeAddress, Sec);      eeAddress+=1;
-        
-        Serial.print("MyLine:");Serial.print(Line);
-        Serial.print("\tMyDay:");Serial.print(Day);Serial.print(" MyMonth:");Serial.print(Month);Serial.print(" MyYear:");Serial.print(Year);
-        Serial.print("\tMyHour:");Serial.print(Hour);Serial.print(" MyMin:");Serial.print(Min); Serial.print(" MySec:");Serial.println(Sec); Serial.println();
+            char Napravlenie='F';writeEEPROM (rom, eeAddress, Napravlenie); eeAddress+=1; //Front first //byte Napravlenie = 88; // Вперёд
+            
+            Serial.print("MyLine:");Serial.print(Line);
+            Serial.print("\tMyDay:");Serial.print(Day);Serial.print(" MyMonth:");Serial.print(Month);Serial.print(" MyYear:");Serial.print(Year);
+            Serial.print("\tMyHour:");Serial.print(Hour);Serial.print(" MyMin:");Serial.print(Min); Serial.print(" MySec:");Serial.println(Sec); Serial.println();
 
-        // И далее записываем в eeprom ячейку 1 значение ползунка в конце записи
-        EeAdrStr=String(eeAddress);
-        char EeAdrStrBuf[6];  EeAdrStr.toCharArray(EeAdrStrBuf, 6);
-        for (uint8_t i=0; i < sizeof(MyArrayData); i++) { MyArrayData[i] = byte(EeAdrStrBuf[i] ); } //Преобразование массива сhar в массив byte
-       
-        writeEEPROM (rom, 1, MyArrayData, sizeof(MyArrayData) );  Serial.print("I write to eeprom Polzunok val:");Serial.println(EeAdrStr);// Запись byte массива
-        EeAdrStr="";
+            // Запись текущего ползунка в первую ячейку eeprom
+            EeAdrStr=String(eeAddress);
+            char EeAdrStrBuf[6];  EeAdrStr.toCharArray(EeAdrStrBuf, 6);
+            for (uint8_t i=0; i < sizeof(MyArrayData); i++) { MyArrayData[i] = byte(EeAdrStrBuf[i] ); } //Преобразование массива сhar в массив byte
+            
+            writeEEPROM (rom, 1, MyArrayData, sizeof(MyArrayData) );  Serial.print("I write to eeprom Polzunok val:");Serial.println(EeAdrStr);EeAdrStr="";// Запись byte массива 
+            // Запись текущего ползунка в первую ячейку eeprom
 
-        OneZjmyakButFirst=false; OneZjmyakButSecond=false; // Перезаряд
+            OneZjmyakButFirst=false; OneZjmyakButSecond=false; // Перезаряд
       }
-      if( TimingButtFirst > TimingButtSecond ){      Serial.println("Proxod v obratnyu storonu:");     }//Serial.println("TimingButt1-TimingButt2)>0");Serial.println();
+        if( TimingButtFirst > TimingButtSecond ){      //Serial.println("TimingButt1-TimingButt2)>0");Serial.println();
+            Serial.print("Proxod NAZAD: ");     
+            byte Line = NameLine;  writeEEPROM (rom, eeAddress, Line);     eeAddress+=1;
+
+            byte Day = byte( MyDateTimeStr.substring(3,5).toInt()  );  writeEEPROM (rom, eeAddress, Day);      eeAddress+=1;
+            byte Month=byte( MyDateTimeStr.substring(0,2).toInt()  );  writeEEPROM (rom, eeAddress, Month);    eeAddress+=1;
+            byte Year = byte( MyDateTimeStr.substring(8,10).toInt());  writeEEPROM (rom, eeAddress, Year);     eeAddress+=1;
+
+            byte Hour = byte( MyDateTimeStr.substring(11,13).toInt()); writeEEPROM (rom, eeAddress, Hour);     eeAddress+=1;
+            byte Min = byte( MyDateTimeStr.substring(14,16).toInt() ); writeEEPROM (rom, eeAddress, Min);      eeAddress+=1;             
+            byte Sec = byte( MyDateTimeStr.substring(17,19).toInt() ); writeEEPROM (rom, eeAddress, Sec);      eeAddress+=1;   
+            
+            char Napravlenie='B'; writeEEPROM (rom, eeAddress, Napravlenie); eeAddress+=1; //Back //byte Napravlenie = 77; // Назад
+            
+                                Serial.print("MyLine:");Serial.print(Line);
+                                Serial.print("\tMyDay:");Serial.print(Day);Serial.print(" MyMonth:");Serial.print(Month);Serial.print(" MyYear:");Serial.print(Year);
+                                Serial.print("\tMyHour:");Serial.print(Hour);Serial.print(" MyMin:");Serial.print(Min); Serial.print(" MySec:");Serial.println(Sec); Serial.println();
+
+                                // И далее записываем в eeprom ячейку 1 значение ползунка в конце записи
+                                EeAdrStr=String(eeAddress);
+                                char EeAdrStrBuf[6];  EeAdrStr.toCharArray(EeAdrStrBuf, 6);
+                                for (uint8_t i=0; i < sizeof(MyArrayData); i++) { MyArrayData[i] = byte(EeAdrStrBuf[i] ); } //Преобразование массива сhar в массив byte
+                                // Запись текущего ползунка в первую ячейку eeprom
+                                writeEEPROM (rom, 1, MyArrayData, sizeof(MyArrayData) );  Serial.print("I write to eeprom Polzunok val:");Serial.println(EeAdrStr);// Запись byte массива
+                                EeAdrStr="";
+                                // Запись текущего ползунка в первую ячейку eeprom
+      }
       OneZjmyakButFirst=false; OneZjmyakButSecond=false; // Перезаряд
       TimingButtFirst=0;       TimingButtSecond=0;       // Перезаряд
       WaitObrabotkaButt=millis(); // Присваиваим точку отсчёта переменной от которой будет отсчёт для активации буля возможности чтения кнопок
@@ -209,22 +232,248 @@ void PrintDebug(){
   }
  
 }
-
+//1 - 18
+//2 - 26
 
 
   void Bluetooth(){
-  // BT
+  // BT #ifdef SendBT_Tubler  #else  #endif
+  while (Serial3.available()) {
+    // get the new byte:
+    char inChar = (char)Serial3.read();
+    // add it to the inputString:
+    inputStringBT += inChar;
+    // if the incoming character is a newline, set a flag so the main loop can
+    // do something about it:
+    if (inChar == '\n') {
+      stringCompleteBT = true;
+    }
+  }
+  while (Serial.available()) {
+    // get the new byte:
+    char inChar = (char)Serial.read();
+    // add it to the inputString:
+    inputStringHard += inChar;
+    // if the incoming character is a newline, set a flag so the main loop can
+    // do something about it:
+    if (inChar == '\n') {
+      stringCompleteHard = true;
+    }
+  }
+ 
+  if (stringCompleteHard) {
+    if (inputStringHard == "t\n") { //При встреченном символе перевода строки
+     Serial.println();Serial.print(F("Текущее время: "));Serial.print(MyDateTimeStr);  Serial.print(F(" Ползунок на адресе: "));Serial.println(eeAddress);Serial.println();
+    }
+    if (inputStringHard == "a\n") {
+      Serial.println (); Serial.println(F("Печать всех данных:"));
+       // Прочитать просто всё
+      static int old_eeAddressFromCharA = eeAddress; // Присваиваем переменной old_eeAddress а чтоб не сбить ползунок а затем вернём всё назад
+      eeAddress=10; //Устанавливаем ползунок в начале адресов для чтения
+      
+      for(int i=1;i<=AllMemoryExtEE1_7Yach;i++){
+        byte ReadLine = readEEPROM (rom, eeAddress);  eeAddress+=1;   // display to confirm
+        byte ReadDay  = readEEPROM (rom, eeAddress);   eeAddress+=1;  
+        byte ReadMonth = readEEPROM (rom, eeAddress); eeAddress+=1;
+        byte ReadYear = readEEPROM (rom, eeAddress);  eeAddress+=1;
+
+        byte ReadHour = readEEPROM (rom, eeAddress);  eeAddress+=1;  
+        byte ReadMin = readEEPROM (rom, eeAddress);   eeAddress+=1; 
+        byte ReadSec = readEEPROM (rom, eeAddress);   eeAddress+=1;
+
+        byte Storona = readEEPROM (rom, eeAddress);   eeAddress+=1;
+        
+          Serial.print ("#");  Serial.print (i);
+          Serial.print (F("\t ")); Serial.print (ReadLine, DEC);  Serial.print (" ");  
+          Serial.print (ReadDay, DEC);   Serial.print (".");       
+          Serial.print (ReadMonth, DEC); Serial.print (".");    
+          Serial.print (ReadYear, DEC);  Serial.print (" ");    
+          
+          Serial.print ("\t");    
+          Serial.print (ReadHour, DEC);  Serial.print (":");     
+          Serial.print (ReadMin, DEC);   Serial.print (":");      
+          Serial.print (ReadSec, DEC);                         
+          if(ReadSec<10){Serial.print (F("\t")); }
+          Serial.print ("\t addr: "); Serial.print (eeAddress); // Убрать при выпуске в свет
+          Serial.print ("\t Storona: "); Serial.println (Storona);
+       
+        }
+        eeAddress=old_eeAddressFromCharA;
+        // Прочитать просто всё
+    }
+
+    if (inputStringHard == "e\n") { //Удалить всё
+      Serial.println (); Serial.println(F("Начало полного стирания:"));
+      //if (inChar == 'e') { //Удалить всё
+       eeAddress=10; //Устанавливаем ползунок в начале адресов для чтения
+      // /*
+      for(int i=1;i<=AllMemoryExtEE1_7Yach;i++){
+        writeEEPROM (rom, eeAddress, 0);     eeAddress+=1; // Line //1
+
+        byte Day = byte( MyDateTimeStr.substring(3,5).toInt()  );  
+        writeEEPROM (rom, eeAddress, 0);      eeAddress+=1;        //2
+        byte Month=byte( MyDateTimeStr.substring(0,2).toInt()  );  
+        writeEEPROM (rom, eeAddress, 0);    eeAddress+=1;          //3
+        byte Year = byte( MyDateTimeStr.substring(8,10).toInt());  
+        writeEEPROM (rom, eeAddress, 0);      eeAddress+=1;        //4
+
+        byte Hour = byte( MyDateTimeStr.substring(11,13).toInt()); 
+        writeEEPROM (rom, eeAddress, 0);     eeAddress+=1;         //5
+        byte Min = byte( MyDateTimeStr.substring(14,16).toInt() );  
+        writeEEPROM (rom, eeAddress, 0);      eeAddress+=1;        //6
+        byte Sec = byte( MyDateTimeStr.substring(17,19).toInt() );     
+        writeEEPROM (rom, eeAddress, 0);      eeAddress+=1;        //7
+        writeEEPROM (rom, eeAddress, 0);      eeAddress+=1;        //8 Направление
+        Serial.println (eeAddress);
+      
+      }
+      // */
+       eeAddress=10;
+       // И записать в EEPROM что ползунок должен с addr 10ти начинать записывать
+       String EeAdrStr="10";    EeAdrStr.toCharArray(EeAdrStrBuf, 6); 
+       byte MyArrayData[6]; //Обозначили размер byte коробки в которую вписываем сhar array
+       // Первый пошёл
+            for (int i=0; i < sizeof(MyArrayData); i++) {        MyArrayData[i] = byte(EeAdrStrBuf[i] );} //Преобразование массива сhar в массив byte
+       writeEEPROM (rom, 1, MyArrayData, sizeof(MyArrayData) ); // Запись byte массива/ записать в EEPROM что ползунок должен быть на addr 10
+
+      
+       Serial.println ();Serial.println(F("Всё стёрто"));
+      
+    //}
+    }
+   
+
+    // Разборка линия дни стринга
+    if (inputStringHard.substring(0, 1) == "l") {
+      posL = inputStringHard.indexOf('l');
+      posD = inputStringHard.indexOf('d');
+      EnteredLine = inputStringHard.substring(posL + 1, posD).toInt();
+      EnteredDays = inputStringHard.substring(posD + 1, inputStringHard.length() ).toInt();
+
+      Serial.print(F("EnteredLine:")); Serial.print(EnteredLine);     Serial.print(F(" EnteredDays:")); Serial.println(EnteredDays);
+
+      ReadLineDays( EnteredLine,EnteredDays );
+     
+    }
+    // Разборка линия дни стринга
+
+    // clear the string:
+    inputStringHard = "";
+    stringCompleteHard = false;
+  }
+  if (stringCompleteBT) {
+    //Serial.println(inputStringBT);
+    if (inputStringBT.substring(0, 1) == "t" && inputStringBT.length() == 3) { //При встреченном символе перевода строки
+      Serial3.print(F("Текущее время: ")); Serial3.print(MyDateTimeStr);  Serial3.print(F(" Ползунок на адресе: ")); Serial3.println(eeAddress);
+    }
+
+    if (inputStringBT.substring(0, 1) == "a") {
+      Serial3.println (); Serial3.println(F("Печать всех данных:"));
+       // Прочитать просто всё
+      static int old_eeAddressFromCharA = eeAddress; // Присваиваем переменной old_eeAddress а чтоб не сбить ползунок а затем вернём всё назад
+      eeAddress=10; //Устанавливаем ползунок в начале адресов для чтения
+      
+      for(int i=1;i<=AllMemoryExtEE1_7Yach;i++){
+        byte ReadLine = readEEPROM (rom, eeAddress);  eeAddress+=1;   // display to confirm
+        byte ReadDay  = readEEPROM (rom, eeAddress);   eeAddress+=1;  
+        byte ReadMonth = readEEPROM (rom, eeAddress); eeAddress+=1;
+        byte ReadYear = readEEPROM (rom, eeAddress);  eeAddress+=1;
+
+        byte ReadHour = readEEPROM (rom, eeAddress);  eeAddress+=1;  
+        byte ReadMin = readEEPROM (rom, eeAddress);   eeAddress+=1; 
+        byte ReadSec = readEEPROM (rom, eeAddress);   eeAddress+=1;
+
+        byte Storona = readEEPROM (rom, eeAddress);   eeAddress+=1;
+        
+          Serial3.print ("#");  Serial3.print (i);
+          Serial3.print ("\t");  Serial3.print (ReadLine, DEC);  Serial3.print (" ");  
+          Serial3.print (ReadDay, DEC);   Serial3.print (".");       
+          Serial3.print (ReadMonth, DEC); Serial3.print (".");    
+          Serial3.print (ReadYear, DEC);  Serial3.print (" ");    
+          
+          Serial3.print ("\t");    
+          Serial3.print (ReadHour, DEC);  Serial3.print (":");     
+          Serial3.print (ReadMin, DEC);   Serial3.print (":");      
+          Serial3.print (ReadSec, DEC);                         
+          if(ReadSec<10){Serial.print (F("\t")); }
+          //Serial3.print ("\t addr: "); Serial3.print (eeAddress); // Убрать при выпуске в свет
+          Serial3.print ("\t Storona: "); Serial3.println (Storona);
+       
+        }
+        eeAddress=old_eeAddressFromCharA;
+        // Прочитать просто всё
+    }
+    if (inputStringBT.substring(0, 1) == "e") { //Удалить всё
+       Serial3.println (); Serial3.println(F("Начало полного стирания:"));
+       eeAddress=10; //Устанавливаем ползунок в начале адресов для чтения
+      // /*
+      for(int i=1;i<=AllMemoryExtEE1_7Yach;i++){
+        writeEEPROM (rom, eeAddress, 0);     eeAddress+=1; // Line //1
+
+        byte Day = byte( MyDateTimeStr.substring(3,5).toInt()  );  
+        writeEEPROM (rom, eeAddress, 0);      eeAddress+=1;        //2
+        byte Month=byte( MyDateTimeStr.substring(0,2).toInt()  );  
+        writeEEPROM (rom, eeAddress, 0);    eeAddress+=1;          //3
+        byte Year = byte( MyDateTimeStr.substring(8,10).toInt());  
+        writeEEPROM (rom, eeAddress, 0);      eeAddress+=1;        //4
+
+        byte Hour = byte( MyDateTimeStr.substring(11,13).toInt()); 
+        writeEEPROM (rom, eeAddress, 0);     eeAddress+=1;         //5
+        byte Min = byte( MyDateTimeStr.substring(14,16).toInt() );  
+        writeEEPROM (rom, eeAddress, 0);      eeAddress+=1;        //6
+        byte Sec = byte( MyDateTimeStr.substring(17,19).toInt() );     
+        writeEEPROM (rom, eeAddress, 0);      eeAddress+=1;        //7
+        writeEEPROM (rom, eeAddress, 0);      eeAddress+=1;        //8 Направление
+        Serial3.println (eeAddress);
+      
+      }
+      // */
+       eeAddress=10;
+       // И записать в EEPROM что ползунок должен с addr 10ти начинать записывать
+       String EeAdrStr="10";    EeAdrStr.toCharArray(EeAdrStrBuf, 6); 
+       byte MyArrayData[6]; //Обозначили размер byte коробки в которую вписываем сhar array
+       // Первый пошёл
+            for (int i=0; i < sizeof(MyArrayData); i++) {        MyArrayData[i] = byte(EeAdrStrBuf[i] );} //Преобразование массива сhar в массив byte
+       writeEEPROM (rom, 1, MyArrayData, sizeof(MyArrayData) ); // Запись byte массива/ записать в EEPROM что ползунок должен быть на addr 10
+
+      
+       Serial3.println ();Serial3.println(F("Всё стёрто"));
+
+    }
+    //Serial.print("inputStringBT.length() "); Serial.println( inputStringBT.length() );
+
+    // Разборка линия дни стринга
+    if (inputStringBT.substring(0, 1) == "l") {
+      posL = inputStringBT.indexOf('l');
+      posD = inputStringBT.indexOf('d');
+      EnteredLine = inputStringBT.substring(posL + 1, posD).toInt();
+      EnteredDays = inputStringBT.substring(posD + 1, inputStringBT.length() ).toInt();
+
+      //Serial.print(F("EnteredLine:")); Serial.print(EnteredLine);     Serial.print(F(" EnteredDays:")); Serial.println(EnteredDays);
+      Serial3.print(F("Я читаю из памяти линию: ")); Serial3.print(EnteredLine);  Serial3.print(F(" Лог за: ")); Serial3.print(EnteredDays); Serial3.println(F("дней"));
+      ReadLineDays( EnteredLine,EnteredDays );
+    }
+    // Разборка линия дни стринга
+
+    // clear the string:
+    inputStringBT = "";
+    stringCompleteBT = false;
+  }
+ 
+  /*
   static bool IsEnterLine = false; // Упомянуты ли линии в сообщении
   static bool IsEnterDay = false; // Упомянуты ли дни в сообщении
   static bool Endline = false; // Говорит нам о том что принятая строка закончилась
+  
   #ifdef SendBT_Tubler
     if (Serial3.available() > 0) {
-     // Serial.println("Serial3");
+      Serial.println("Serial3");
     char inChar = (char)Serial3.read();
   #else
-    while (Serial.available() > 0) {
+  
+    while (Serial.available() ) {
     char inChar = (char)Serial.read();
-  #endif
+  //#endif
     inputString += inChar;
 
     if (inChar == 'l') { //Проверка введённой линии (введена ли)
@@ -238,27 +487,28 @@ void PrintDebug(){
       posD = inputString.indexOf('d'); //Узнаём индекс буквы d для парсинга данных
       // Serial.print("IsEnterDay:");Serial.print(IsEnterDay); Serial.print(" posD:");Serial.print(posD);Serial.println();
     }
+     //Удалить всё
      if (inChar == 'e') { //Удалить всё
-     
-     
        eeAddress=10; //Устанавливаем ползунок в начале адресов для чтения
       
       for(int i=1;i<=AllMemoryExtEE1_7Yach;i++){
-        writeEEPROM (rom, eeAddress, 0);     eeAddress+=1;
+        writeEEPROM (rom, eeAddress, 0);     eeAddress+=1; // Line //1
 
         byte Day = byte( MyDateTimeStr.substring(3,5).toInt()  );  
-        writeEEPROM (rom, eeAddress, 0);      eeAddress+=1;
+        writeEEPROM (rom, eeAddress, 0);      eeAddress+=1;        //2
         byte Month=byte( MyDateTimeStr.substring(0,2).toInt()  );  
-        writeEEPROM (rom, eeAddress, 0);    eeAddress+=1;
+        writeEEPROM (rom, eeAddress, 0);    eeAddress+=1;          //3
         byte Year = byte( MyDateTimeStr.substring(8,10).toInt());  
-        writeEEPROM (rom, eeAddress, 0);      eeAddress+=1;
+        writeEEPROM (rom, eeAddress, 0);      eeAddress+=1;        //4
 
         byte Hour = byte( MyDateTimeStr.substring(11,13).toInt()); 
-        writeEEPROM (rom, eeAddress, 0);     eeAddress+=1;
+        writeEEPROM (rom, eeAddress, 0);     eeAddress+=1;         //5
         byte Min = byte( MyDateTimeStr.substring(14,16).toInt() );  
-        writeEEPROM (rom, eeAddress, 0);      eeAddress+=1;
+        writeEEPROM (rom, eeAddress, 0);      eeAddress+=1;        //6
         byte Sec = byte( MyDateTimeStr.substring(17,19).toInt() );     
-        writeEEPROM (rom, eeAddress, 0);      eeAddress+=1;
+        writeEEPROM (rom, eeAddress, 0);      eeAddress+=1;        //7
+
+        writeEEPROM (rom, eeAddress, 0);      eeAddress+=1;        //8 Направление
         #ifdef SendBT_Tubler
         Serial3.println (eeAddress);
         #else
@@ -267,7 +517,7 @@ void PrintDebug(){
       }
        eeAddress=10;
        // И записать в EEPROM что ползунок должен с addr 10ти начинать записывать
-       String EeAdrStr="10";    EeAdrStr.toCharArray(EeAdrStrBuf, 6);
+       String EeAdrStr="10";    EeAdrStr.toCharArray(EeAdrStrBuf, 6); 
        byte MyArrayData[6]; //Обозначили размер byte коробки в которую вписываем сhar array
        // Первый пошёл
        for (int i=0; i < sizeof(MyArrayData); i++) {        MyArrayData[i] = byte(EeAdrStrBuf[i] );} //Преобразование массива сhar в массив byte
@@ -279,11 +529,8 @@ void PrintDebug(){
         Serial.println ();Serial.println(F("Всё стёрто"));
       #endif
     }
-    if (inChar == '\n') { //При встреченном символе перевода строки
-      //Serial.print("inputString:");Serial.println(inputString);
-      Endline = true; // Пометили что наступил конец строки
-      //inputString="";
-    }
+    
+ 
      if (inChar == 's') { //При встреченном символе перевода строки
      Serial.println(F("Reset"));
      digitalWrite(resetPin,LOW);
@@ -308,13 +555,15 @@ void PrintDebug(){
       
       for(int i=1;i<=AllMemoryExtEE1_7Yach;i++){
         byte ReadLine = readEEPROM (rom, eeAddress);  eeAddress+=1;   // display to confirm
-        byte ReadDay = readEEPROM (rom, eeAddress);   eeAddress+=1;  
+        byte ReadDay  = readEEPROM (rom, eeAddress);   eeAddress+=1;  
         byte ReadMonth = readEEPROM (rom, eeAddress); eeAddress+=1;
         byte ReadYear = readEEPROM (rom, eeAddress);  eeAddress+=1;
 
         byte ReadHour = readEEPROM (rom, eeAddress);  eeAddress+=1;  
         byte ReadMin = readEEPROM (rom, eeAddress);   eeAddress+=1; 
         byte ReadSec = readEEPROM (rom, eeAddress);   eeAddress+=1;
+
+        byte Storona = readEEPROM (rom, eeAddress);   eeAddress+=1;
         #ifdef SendBT_Tubler
           Serial3.print ("#");  Serial3.print (i); 
           Serial3.print (F("\t ")); Serial3.print (ReadLine, DEC);  Serial3.print (" ");  
@@ -340,7 +589,8 @@ void PrintDebug(){
           Serial.print (ReadMin, DEC);   Serial.print (":");      
           Serial.print (ReadSec, DEC);                         
           if(ReadSec<10){Serial.print (F("\t")); }
-          Serial.print ("\t addr: "); Serial.println (eeAddress); // Убрать при выпуске в свет
+          Serial.print ("\t addr: "); Serial.print (eeAddress); // Убрать при выпуске в свет
+          Serial.print ("\t Storona: "); Serial.println (Storona);
         #endif
         }
         eeAddress=old_eeAddressFromCharA;
@@ -355,7 +605,7 @@ void PrintDebug(){
     }
     // Тут мы разбираем входящие цифры линии и дней
     if (IsEnterLine == 1 && IsEnterDay == 1 && Endline == true) { //Если упомянуты линии дни и строка уже полностью у нас
-      Serial.print(F("inputString:")); Serial.println(inputString);
+      Serial.print(F("inputString(3):")); Serial.println(inputString);
       EnteredLine = inputString.substring(posL + 1, posD).toInt();
       EnteredDays = inputString.substring(posD + 1, inputString.length() ).toInt();
 
@@ -367,64 +617,78 @@ void PrintDebug(){
       IsEnterLine = 0;   IsEnterDay = 0;
     }
     // Тут мы разбираем входящие цифры линии и дней
-    //inputString="";
+        if (inChar == '\n') { //При встреченном символе перевода строки
+      //Serial.print("inputString:");Serial.println(inputString);
+      Endline = true; // Пометили что наступил конец строки
+       Serial.print(F("inputString(1):")); Serial.println(inputString);//inputString="";
+      //inputString="";
+    }
   }
   // BT
+  */
   }
 
 void ReadLineDays(const byte& Line,const byte& Days){
-  // if(Line == 1){    Serial.println("It is line 1!");  }
-  // Принятие дней и перевод в дату от которой до которой вывести инфу
-  byte TodayDay=byte(MyDateTimeStr.substring(3,5).toInt() );
-  byte TodayMonth=byte( MyDateTimeStr.substring(0,2).toInt()  );
-  byte TodayYear= byte( MyDateTimeStr.substring(8,10).toInt() ); 
+    // if(Line == 1){    Serial.println("It is line 1!");  }
+    // Принятие дней и перевод в дату от которой до которой вывести инфу
+    byte TodayDay=byte(MyDateTimeStr.substring(3,5).toInt() );
+    byte TodayMonth=byte( MyDateTimeStr.substring(0,2).toInt()  );
+    byte TodayYear= byte( MyDateTimeStr.substring(8,10).toInt() ); 
 
-  if(Days<=TodayDay){ //Если введённые дни меньше дня сегодняшнего. Вывод по введённой линии и кол-ву дней
-   #ifdef SendBT_Tubler
-     Serial3.print("Будет выведена линия:");Serial3.print( Line );  Serial3.print(" Принято кол-во дней:");Serial3.println(Days); 
-     Serial3.print("Будут выведены данные от ");     
-     Serial3.print(TodayDay-Days); Serial3.print(".");  Serial3.print(TodayMonth); Serial3.print(".");   Serial3.print(TodayYear); 
-     Serial3.print(" До ");
-     Serial3.print(TodayDay); Serial3.print(".");       Serial3.print(TodayMonth); Serial3.print(".");   Serial3.println(TodayYear); 
-   #else
-     Serial.print("Будет выведена линия:");Serial.print( Line );  Serial.print(" Принято кол-во дней:");Serial.println(Days); 
-     Serial.print("Будут выведены данные от ");     
-     Serial.print(TodayDay-Days); Serial.print(".");  Serial.print(TodayMonth); Serial.print(".");   Serial.print(TodayYear); 
-     Serial.print(" До ");
-     Serial.print(TodayDay); Serial.print(".");       Serial.print(TodayMonth); Serial.print(".");   Serial.println(TodayYear); 
-   #endif
+    if(Days<TodayDay){ //[Не нуждается в тесте на февраль и конец года] Если введённые дни меньше текущего. Вывод по введённой линии и кол-ву дней
+    
+    #ifdef SendBT_Tubler
+        Serial3.print("Будет выведена линия:");Serial3.print( Line );  Serial3.print(" Принято кол-во дней:");Serial3.println(Days); 
+        Serial3.print("Будут выведены данные от ");    
+
+        Serial3.print(TodayDay-Days); Serial3.print(".");  Serial3.print(TodayMonth); Serial3.print(".");   Serial3.print(TodayYear); 
+        Serial3.print(" До ");
+        Serial3.print(TodayDay); Serial3.print(".");       Serial3.print(TodayMonth); Serial3.print(".");   Serial3.println(TodayYear);Serial3.println('\n');  
+    #else
+        //Serial.println("Days<TodayDay");
+        Serial.print("Будет выведена линия:");Serial.print( Line );  Serial.print(" Принято кол-во дней:");Serial.println(Days); 
+
+        Serial.print("Будут выведены данные от ");     
+        Serial.print(TodayDay-Days); Serial.print(".");  Serial.print(TodayMonth); Serial.print(".");   Serial.print(TodayYear); 
+        Serial.print(" До ");
+        Serial.print(TodayDay); Serial.print(".");       Serial.print(TodayMonth); Serial.print(".");   Serial.println(TodayYear); 
+    #endif
   
 
-     // Cдесь сортировка будет по введённой линии и дням показ (Если дней введённых меньше чем даёт текущая дата)
-     int old_eeAddress = eeAddress; // Присваиваем переменной old_eeAddress а чтоб не сбить ползунок а затем вернём всё назад
-     eeAddress=10; //Устанавливаем ползунок в начале адресов для чтения
-     uint16_t countPodchet=0; // Временная переменная чтобы обьявить сколько же раз за заданный период считалась метка
-     for(int i=1;i<=AllMemoryExtEE1_7Yach;i++){
-         //Serial.print("=== Начало цикла Адрес контроль в цикле: ==="); Serial.println(eeAddress);
-         //Проверяем соответствует ли считанная строка нашим параметрам
-         bool GoNext=false; // Разрешает или запрещает проход к секции вывода 
-         byte ReadLine = readEEPROM (rom, eeAddress);  eeAddress+=1; //Считываем линию
-         if(ReadLine == Line ) //Проверяем соответствие считанной линии тому что мы попросили показать по блютуз.Если да то проверяем дальше
-         {
-             //Serial.print("Проверка считанной линии:"); Serial.println(ReadLine);
-              byte ReadDay   = readEEPROM (rom, eeAddress); eeAddress+=1;                  //Считываем считанный из eeprom день
-              byte ReadMonth = readEEPROM (rom, eeAddress);  eeAddress+=1;                 //Считываем считанный из eeprom месяц
-              byte ReadYear  = readEEPROM (rom, eeAddress);                                //Считываем считанный из eeprom год
-              //Serial.println();
-              //Serial.print("ReadDay:"); Serial.print(ReadDay);              Serial.print(" TodayDay:"); Serial.println(TodayDay);
-              //Serial.print("ReadMonth:"); Serial.print(ReadMonth);          Serial.print(" TodayMonth:"); Serial.println(TodayMonth);
-              //Serial.print("ReadYear:"); Serial.print(ReadYear);            Serial.print(" TodayYear:"); Serial.println(TodayYear);
+    // Cдесь сортировка будет по введённой линии и дням показ (Если дней введённых меньше чем даёт текущая дата)
+    int old_eeAddress = eeAddress; // Присваиваем переменной old_eeAddress а чтоб не сбить ползунок а затем вернём всё назад
+    eeAddress=10; //Устанавливаем ползунок в начале адресов для чтения
+
+    uint16_t countPodchet=0; // Временная переменная чтобы обьявить сколько же раз за заданный период считалась метка
+    uint16_t BackCountPodchet=0; // Подсчёт обратных проходов
+
+    for(int i=1;i<=AllMemoryExtEE1_7Yach;i++){
+        //Serial.print("=== Начало цикла Адрес контроль в цикле: ==="); Serial.println(eeAddress);
+        //Проверяем соответствует ли считанная строка нашим параметрам
+        bool GoNext=false; // Разрешает или запрещает проход к секции вывода 
+        byte ReadLine = readEEPROM (rom, eeAddress);  eeAddress+=1; //Считываем линию
+        if(ReadLine == Line ) //Проверяем соответствие считанной линии тому что мы попросили показать по блютуз.Если да то проверяем дальше
+        {
+            //Serial.print("Проверка считанной линии:"); Serial.println(ReadLine);
+            byte ReadDay   = readEEPROM (rom, eeAddress); eeAddress+=1;                  //Считываем считанный из eeprom день
+            byte ReadMonth = readEEPROM (rom, eeAddress);  eeAddress+=1;                 //Считываем считанный из eeprom месяц
+            byte ReadYear  = readEEPROM (rom, eeAddress);                                //Считываем считанный из eeprom год
+            //Serial.println();
+            //Serial.print("ReadDay:"); Serial.print(ReadDay);              Serial.print(" TodayDay:"); Serial.println(TodayDay);
+            //Serial.print("ReadMonth:"); Serial.print(ReadMonth);          Serial.print(" TodayMonth:"); Serial.println(TodayMonth);
+            //Serial.print("ReadYear:"); Serial.print(ReadYear);            Serial.print(" TodayYear:"); Serial.println(TodayYear);
        
-              if(ReadYear == TodayYear && ReadMonth == TodayMonth && ReadDay <= TodayDay && ReadDay >= (TodayDay-Days) ){ //Если считанный год и месяц совпали с текущим и считанный день меньше или равен текущему и считанный день больше текущий день - минус заданный из BT день
-                  GoNext=true; // Разрешить проход
-              //Serial.print("GoNext= true");    Serial.print(" eeAddress:"); Serial.println(eeAddress);
-                  eeAddress-=3;countPodchet++;// Serial.println("countPodchet++"); 
-              }
-              else{  eeAddress+=4; GoNext=false; 
-              //Serial.print("Выходим из else с ползунком:"); Serial.println(eeAddress);
-              }
+            if(ReadYear == TodayYear && ReadMonth == TodayMonth && ReadDay <= TodayDay && ReadDay >= (TodayDay-Days) ){ //Если считанный год и месяц совпали с текущим и считанный день меньше или равен текущему и считанный день больше текущий день - минус заданный из BT день
+                GoNext=true; // Разрешить проход
+                //Serial.print("GoNext= true");    Serial.print(" eeAddress:"); Serial.println(eeAddress);
+                eeAddress-=3;
+                countPodchet++;// Serial.println("countPodchet++"); 
+            }
+            else{  eeAddress+=5; GoNext=false; // <-
+                //Serial.print("Выходим из else с ползунком:"); Serial.println(eeAddress);
+            }
       }
-      else{ eeAddress-=1;eeAddress+=7;} //Если линия не та что мы хотели вывести то откатить считанный адрес. И перепрыгнуть на следущую ячейку данных 
+      else{ eeAddress-=1;eeAddress+=8;} //Если линия не та что мы хотели вывести то откатить считанный адрес. И перепрыгнуть на следущую ячейку данных 
       //Проверяем соответствует ли считанная строка нашим параметрам. Если да то GoNext cтановится true
       if(GoNext == true){
          //Serial.print("GoNext eeAddress:"); Serial.println(eeAddress);Serial.print("");
@@ -437,85 +701,222 @@ void ReadLineDays(const byte& Line,const byte& Days){
           byte ReadHour = readEEPROM (rom, eeAddress);     eeAddress+=1;
           byte ReadMin = readEEPROM (rom, eeAddress);      eeAddress+=1; 
           byte ReadSec = readEEPROM (rom, eeAddress);      eeAddress+=1;
+
+          char Storona = readEEPROM (rom, eeAddress);      eeAddress+=1;
+          if(Storona=='B'){                BackCountPodchet++;          }
           #ifdef SendBT_Tubler
             Serial3.print ("#");            Serial3.print (i);   Serial3.print (" ");
             Serial3.print (ReadLine, DEC);  Serial3.print (" ");
             Serial3.print (ReadDay, DEC);   Serial3.print ("."); Serial3.print (ReadMonth, DEC); Serial3.print ("."); Serial3.print (ReadYear, DEC);   Serial3.print (" ");
-            Serial3.print (ReadHour, DEC);  Serial3.print (":"); Serial3.print (ReadMin, DEC);   Serial3.print (":"); Serial3.println (ReadSec, DEC);          
+            Serial3.print (ReadHour, DEC);  Serial3.print (":"); Serial3.print (ReadMin, DEC);   Serial3.print (":"); Serial3.print (ReadSec, DEC);  
+            Serial3.print (" ");Serial3.println (Storona);      
+            //if(S)  
           #else
             Serial.print ("#");            Serial.print (i);   Serial.print (" ");
             Serial.print (ReadLine, DEC);  Serial.print (" ");
             Serial.print (ReadDay, DEC);   Serial.print ("."); Serial.print (ReadMonth, DEC); Serial.print ("."); Serial.print (ReadYear, DEC);   Serial.print (" ");
-            Serial.print (ReadHour, DEC);  Serial.print (":"); Serial.print (ReadMin, DEC);   Serial.print (":"); Serial.println (ReadSec, DEC);  
+            Serial.print (ReadHour, DEC);  Serial.print (":"); Serial.print (ReadMin, DEC);   Serial.print (":"); Serial.print (ReadSec, DEC);  
+            Serial.print (" ");Serial.println (Storona);
+          #endif
+      }
+     //Serial.print("=== Конец цикла Адрес контроль в цикле: ==="); Serial.println(eeAddress);
+ }//10 -F 11 - B
+   #ifdef SendBT_Tubler
+    Serial3.print("Всего проходов:"); Serial3.println(countPodchet); 
+    Serial3.print(F("Обратных проходов:"));  Serial3.print (BackCountPodchet); 
+    Serial3.print(F(" Прямых проходов:"));  Serial3.println (countPodchet-BackCountPodchet);
+   #else
+    Serial.print(F("Всего проходов:"));  Serial.print (countPodchet); 
+    Serial.print(F(" Обратных проходов:"));  Serial.print (BackCountPodchet); 
+    Serial.print(F(" Прямых проходов:"));  Serial.println (countPodchet-BackCountPodchet); Serial.println();
+   #endif
+   BackCountPodchet=0;
+   countPodchet=0;
+  eeAddress=old_eeAddress;
+// Cдесь сортировка будет по введённой линии и дням показ (Если дней введённых меньше чем даёт текущая дата)
+
+ }   //Если введённые дни меньше дня сегодняшнего. Вывод по введённой линии и кол-ву дней
+
+    else if(Days==TodayDay){ //[Пройден тест февраль и конец года] Если введённые дни равны текущим. Вывод по введённой линии и кол-ву дней. Пока реализован вариант все месяцы кроме первого месяца года
+      #ifdef SendBT_Tubler
+      //Serial3.print("Будет выведена линия:");Serial3.print( Line );  Serial3.print(" Принято кол-во дней:");Serial3.println(Days); 
+
+        if(TodayMonth!=1){
+            Serial3.print("Будут выведены данные от ");     
+            Serial3.print(MonthArr[TodayMonth-1]); Serial3.print(".");  // Макс кол-во дней в прошлом месяце
+            Serial3.print(TodayMonth-1); Serial3.print(".");   // Текущий месяц - 1
+            Serial3.print(TodayYear); 
+        }
+        else{   //Если первый месяц года
+            Serial3.print("Будут выведены данные от ");     
+            Serial3.print(MonthArr[12]); Serial3.print(".");  // Макс кол-во дней в прошлом месяце
+            Serial3.print(12); Serial3.print(".");   // Текущий месяц - 1
+            Serial3.print(TodayYear-1); 
+        }
+
+        Serial3.print(" До ");
+        Serial3.print(TodayDay); Serial3.print(".");       Serial3.print(TodayMonth); Serial3.print(".");   Serial3.println(TodayYear); 
+      #else
+        Serial.println("Days==TodayDay");
+        Serial.print("Будет выведена линия:");Serial.print( Line );  Serial.print(" Принято кол-во дней:");Serial.println(Days); 
+
+        if(TodayMonth!=1){
+            Serial.print("Будут выведены данные от ");     
+            Serial.print(MonthArr[TodayMonth-1]); Serial.print(".");  // Макс кол-во дней в прошлом месяце
+            Serial.print(TodayMonth-1); Serial.print(".");   // Текущий месяц - 1
+            Serial.print(TodayYear); 
+        }
+        else{   //Если первый месяц года
+            Serial.print("Будут выведены данные от ");     
+            Serial.print(MonthArr[12]); Serial.print(".");  // Макс кол-во дней в прошлом месяце
+            Serial.print(12); Serial.print(".");   // Текущий месяц - 1
+            Serial.print(TodayYear-1); 
+        }
+
+        Serial.print(" До ");
+        Serial.print(TodayDay); Serial.print(".");       Serial.print(TodayMonth); Serial.print(".");   Serial.println(TodayYear); 
+      #endif
+  
+
+    // Cдесь сортировка будет по введённой линии и дням показ (Если дней введённых меньше чем даёт текущая дата)
+    int old_eeAddress = eeAddress; // Присваиваем переменной old_eeAddress а чтоб не сбить ползунок а затем вернём всё назад
+    eeAddress=10; //Устанавливаем ползунок в начале адресов для чтения
+
+    uint16_t countPodchet=0; // Временная переменная чтобы обьявить сколько же раз за заданный период считалась метка
+    uint16_t BackCountPodchet=0; // Подсчёт обратных проходов
+
+    for(int i=1;i<=AllMemoryExtEE1_7Yach;i++){
+        //Serial.print("=== Начало цикла Адрес контроль в цикле: ==="); Serial.println(eeAddress);
+        //Проверяем соответствует ли считанная строка нашим параметрам
+        bool GoNext=false; // Разрешает или запрещает проход к секции вывода 
+        byte ReadLine = readEEPROM (rom, eeAddress);  eeAddress+=1; //Считываем линию
+        if(ReadLine == Line ) //Проверяем соответствие считанной линии тому что мы попросили показать по блютуз.Если да то проверяем дальше
+        {
+            //Serial.print("Проверка считанной линии:"); Serial.println(ReadLine);
+            byte ReadDay   = readEEPROM (rom, eeAddress); eeAddress+=1;                  //Считываем считанный из eeprom день
+            byte ReadMonth = readEEPROM (rom, eeAddress);  eeAddress+=1;                 //Считываем считанный из eeprom месяц
+            byte ReadYear  = readEEPROM (rom, eeAddress);                                //Считываем считанный из eeprom год
+            //Serial.println();
+            //Serial.print(F("ReadDay:")); Serial.print(ReadDay);              Serial.print(" TodayDay:"); Serial.println(TodayDay);
+            //Serial.print(F("ReadMonth:")); Serial.print(ReadMonth);          Serial.print(" TodayMonth:"); Serial.println(TodayMonth);
+            //Serial.print(F("ReadYear:")); Serial.print(ReadYear);            Serial.print(" TodayYear:"); Serial.println(TodayYear);
+       
+
+            if(TodayMonth!=1){
+              
+                //Serial.println("Не первый месяц года  ");
+                if( (ReadYear == TodayYear)                                    && //Если считанный год совпал с текущим
+                    (ReadMonth == TodayMonth ||  ReadMonth == (TodayMonth-1) ) && //Если считанный месяц текущий или прошлый
+                    (ReadDay == TodayDay     || ReadDay == MonthArr[TodayMonth-1] || ((TodayDay-ReadDay)>0) )) { //Если считанный день равен текущему и считанный день равен последний день месяца большой самый
+                GoNext=true; // Разрешить проход  Serial.print("GoNext= true");    Serial.print(" eeAddress:"); Serial.println(eeAddress);
+                eeAddress-=3;countPodchet++;// Serial.println("countPodchet++"); 
+                }   
+                else{  eeAddress+=5; GoNext=false;                 //Serial.print("Выходим из else с ползунком:"); Serial.println(eeAddress);
+                }
+                //Serial.print("GoNext:");    Serial.println(GoNext); 
+            }
+            else{   //Если первый месяц года  
+            //Serial.println("первый месяц года  ");
+                if( (  ReadYear == TodayYear   || ReadYear == (TodayYear-1) )&&       //Если считанный год совпал с текущим и считанный год = текущий -1
+                    (  ReadMonth == TodayMonth || ReadMonth == 12 ) &&                //Если считанный месяц текущий или последний прошлого года
+                    (  ReadDay == TodayDay     || ReadDay == 31     ) ){                   //Если считанный день равен текущему и считанный день равен последний день месяца большой самый
+                GoNext=true; // Разрешить проход  //Serial.print("GoNext= true");    Serial.print(" eeAddress:"); Serial.println(eeAddress);
+                eeAddress-=3;countPodchet++;// Serial.println("countPodchet++"); 
+                }   
+                else{  eeAddress+=5; GoNext=false;                 //Serial.print("Выходим из else с ползунком:"); Serial.println(eeAddress);
+                }
+                //Serial.print("GoNext:");    Serial.println(GoNext); 
+            }
+            
+      }
+      else{ eeAddress-=1;eeAddress+=8;} //Если линия не та что мы хотели вывести то откатить считанный адрес. И перепрыгнуть на следущую ячейку данных 
+      //Проверяем соответствует ли считанная строка нашим параметрам. Если да то GoNext cтановится true
+      if(GoNext == true){
+         //Serial.print("GoNext eeAddress:"); Serial.println(eeAddress);Serial.print("");
+          eeAddress+=1; // display to confirm
+      
+          byte ReadDay = readEEPROM (rom, eeAddress);      eeAddress+=1;  
+          byte ReadMonth = readEEPROM (rom, eeAddress);    eeAddress+=1;
+          byte ReadYear = readEEPROM (rom, eeAddress);     eeAddress+=1;
+  
+          byte ReadHour = readEEPROM (rom, eeAddress);     eeAddress+=1;
+          byte ReadMin = readEEPROM (rom, eeAddress);      eeAddress+=1; 
+          byte ReadSec = readEEPROM (rom, eeAddress);      eeAddress+=1;
+
+          char Storona = readEEPROM (rom, eeAddress);      eeAddress+=1;
+          if(Storona=='B'){                BackCountPodchet++;          }
+          #ifdef SendBT_Tubler
+            Serial3.print ("#");            Serial3.print (i);   Serial3.print (" ");
+            Serial3.print (ReadLine, DEC);  Serial3.print (" ");
+            Serial3.print (ReadDay, DEC);   Serial3.print ("."); Serial3.print (ReadMonth, DEC); Serial3.print ("."); Serial3.print (ReadYear, DEC);   Serial3.print (" ");
+            Serial3.print (ReadHour, DEC);  Serial3.print (":"); Serial3.print (ReadMin, DEC);   Serial3.print (":"); Serial3.print (ReadSec, DEC);
+            Serial3.print (" ");Serial3.println (Storona);           
+          #else
+            Serial.print ("#");            Serial.print (i);   Serial.print (" ");
+            Serial.print (ReadLine, DEC);  Serial.print (" ");
+            Serial.print (ReadDay, DEC);   Serial.print ("."); Serial.print (ReadMonth, DEC); Serial.print ("."); Serial.print (ReadYear, DEC);   Serial.print (" ");
+            Serial.print (ReadHour, DEC);  Serial.print (":"); Serial.print (ReadMin, DEC);   Serial.print (":"); Serial.print (ReadSec, DEC);  
+            Serial.print (" ");Serial.println (Storona);
           #endif
       }
      //Serial.print("=== Конец цикла Адрес контроль в цикле: ==="); Serial.println(eeAddress);
  }
    #ifdef SendBT_Tubler
     Serial3.print("Кол-во найденных проходов:"); Serial3.println(countPodchet); 
+    Serial3.print(F("Обратных проходов:"));  Serial3.print (BackCountPodchet); 
+    Serial3.print(F(" Прямых проходов:"));  Serial3.println (countPodchet-BackCountPodchet);
    #else
     Serial.print("Кол-во найденных проходов:");  Serial.println(countPodchet); 
+    Serial.print(F(" Обратных проходов:"));  Serial.print (BackCountPodchet); 
+    Serial.print(F(" Прямых проходов:"));  Serial.println (countPodchet-BackCountPodchet); 
    #endif
   eeAddress=old_eeAddress;
 // Cдесь сортировка будет по введённой линии и дням показ (Если дней введённых меньше чем даёт текущая дата)
 
  }   //Если введённые дни меньше дня сегодняшнего. Вывод по введённой линии и кол-ву дней
- 
-  else if(Days>TodayDay && Days<=30){  //Если введённые дни с BT больше сегодняшнего дня но меньше или равно 30. И это не конец года ( надо обработать )
+
+    else if(Days>TodayDay && Days<=30){ // [Проработка варианта с коном года][Тест на февраль пройден] //Если введённые дни с BT больше сегодняшнего дня но меньше или равно 30. И это не конец года ( надо обработать )
      #ifdef SendBT_Tubler
-      Serial3.print(F("Будет выведена линия:"));Serial3.print( Line );  Serial3.print(F(" Принято кол-во дней:"));Serial3.println(Days);
+      //Serial3.print(F("Будет выведена линия:"));Serial3.print( Line );  Serial3.print(F(" Принято кол-во дней:"));Serial3.println(Days);
      #else
       Serial.print(F("Будет выведена линия:"));Serial.print( Line );  Serial.print(F(" Принято кол-во дней:"));Serial.println(Days);
      #endif
-     int DayOt = TodayDay-Days; //DayOt =-7 //Сколько дней захватить надо в прошлом месяце [считаем по модулю]
-     //Serial.print("TodayDay");Serial.print(TodayDay);     Serial.print(" Days");Serial.print(Days);      Serial.print(" DayOt");Serial.println(DayOt); 
-
+     int DayOt = TodayDay-Days; //DayOt =-7 //Сколько дней захватить надо в прошлом месяце [считаем по модулю]      //Serial.print("TodayDay");Serial.print(TodayDay);     Serial.print(" Days");Serial.print(Days);      Serial.print(" DayOt");Serial.println(DayOt); 
      int8_t ZaxvatDayLastMonth; //Сколько дней надо захватить в прошлом месяце
      ZaxvatDayLastMonth=MonthArr[TodayMonth-1]+ DayOt; // Узнали с какого дня прошлого месяца будет начинать выводится информация
      
-     if(TodayMonth != 1 && TodayMonth != 3){ // Если сейчас не первый месяц года (прикол с переходом через год - надо уменьшить год) и не 2(February)
-        #ifdef SendBT_Tubler
-          Serial3.print(F("Будут выведены данные от "));  Serial3.print(ZaxvatDayLastMonth); Serial3.print(".");  Serial3.print(TodayMonth-1); Serial3.print("."); Serial3.print(TodayYear); 
-          Serial3.print(" До "); Serial3.print(TodayDay); Serial3.print("."); Serial3.print(TodayMonth); Serial3.print("."); Serial3.println(TodayYear); 
-        #else
-          Serial.print(F("Будут выведены данные от ")); Serial.print(ZaxvatDayLastMonth); Serial.print(".");  Serial.print(TodayMonth-1); Serial.print("."); Serial.print(TodayYear); 
-          Serial.print(" До "); Serial.print(TodayDay); Serial.print("."); Serial.print(TodayMonth); Serial.print("."); Serial.println(TodayYear); 
-        #endif
-        
-     }
-
-     else if(TodayMonth ==3 ){         // Обработка February . Стоим на месяце Март.
-        if(Days<=28){ //Если введённых дней 28 и меньше то отрабатывает корректно.
+     if(TodayMonth != 1 ){ // Если сейчас не первый месяц года (прикол с переходом через год - надо уменьшить год) и не 2(February)
             #ifdef SendBT_Tubler
               Serial3.print(F("Будут выведены данные от "));  Serial3.print(ZaxvatDayLastMonth); Serial3.print(".");  Serial3.print(TodayMonth-1); Serial3.print("."); Serial3.print(TodayYear); 
               Serial3.print(" До "); Serial3.print(TodayDay); Serial3.print("."); Serial3.print(TodayMonth); Serial3.print("."); Serial3.println(TodayYear); 
             #else
+              Serial.println("Days>TodayDay && Days<=30");
               Serial.print(F("Будут выведены данные от ")); Serial.print(ZaxvatDayLastMonth); Serial.print(".");  Serial.print(TodayMonth-1); Serial.print("."); Serial.print(TodayYear); 
+              Serial.print(" До "); Serial.print(TodayDay); Serial.print("."); Serial.print(TodayMonth); Serial.print("."); Serial.println(TodayYear);  
+            #endif    
+     }
+     else{ //    <- Если первый месяц года
+     ZaxvatDayLastMonth=MonthArr[12]+ DayOt;
+            #ifdef SendBT_Tubler
+              Serial3.print(F("Будут выведены данные от ")); Serial3.print(ZaxvatDayLastMonth); Serial3.print(".");  Serial3.print(TodayMonth-1); Serial3.print("."); Serial3.print(TodayYear-1); 
+              Serial3.print(" До "); Serial3.print(TodayDay); Serial3.print("."); Serial3.print(TodayMonth); Serial3.print("."); Serial3.println(TodayYear); 
+            #else // Тут переделать
+              //Serial.println("Days>TodayDay && Days<=30 Если первый месяц года");
+              Serial.print(F("Будут выведены данные от ")); Serial.print(ZaxvatDayLastMonth); Serial.print(".");  Serial.print(12); Serial.print("."); Serial.print(TodayYear-1); 
               Serial.print(" До "); Serial.print(TodayDay); Serial.print("."); Serial.print(TodayMonth); Serial.print("."); Serial.println(TodayYear); 
             #endif
-        }
-        else{ // Если введённых дней больше 28 
+    }
 
-        }
-
-     }
-     else{ // в строке отсчёт от - уменьшить год на 1цу   <- Если первый месяц года
-        #ifdef SendBT_Tubler
-          Serial3.print(F("Будут выведены данные от ")); Serial3.print(ZaxvatDayLastMonth); Serial3.print(".");  Serial3.print(TodayMonth-1); Serial3.print("."); Serial3.print(TodayYear-1); 
-          Serial3.print(" До "); Serial3.print(TodayDay); Serial3.print("."); Serial3.print(TodayMonth); Serial3.print("."); Serial3.println(TodayYear); 
-        #else // Тут переделать
-          Serial.print(F("Будут выведены данные от ")); Serial.print(ZaxvatDayLastMonth); Serial.print(".");  Serial.print(TodayMonth-1); Serial.print("."); Serial.print(TodayYear-1); 
-          Serial.print(" До "); Serial.print(TodayDay); Serial.print("."); Serial.print(TodayMonth); Serial.print("."); Serial.println(TodayYear); 
-        #endif
-     }
-
-    //Cюда вставляем вывод если сейчас не первый месяц года
-      if(TodayMonth != 1){ // Если сейчас не первый месяц года 
+     //Cюда вставляем вывод если сейчас не первый месяц года
+     if(TodayMonth != 1){ // Если сейчас не первый месяц года 
           // Cдесь сортировка будет по введённой линии и дням показ (Если дней введённых меньше чем даёт текущая дата)
           int old_eeAddress = eeAddress; // Присваиваем переменной old_eeAddress а чтоб не сбить ползунок а затем вернём всё назад
           eeAddress=10; //Устанавливаем ползунок в начале адресов для чтения
+
           uint16_t countPodchet=0; // Временная переменная чтобы обьявить сколько же раз за заданный период считалась метка
-          for(int i=1;i<=AllMemoryExtEE1_7Yach/3;i++){
+          uint16_t BackCountPodchet=0; // Подсчёт обратных проходов
+
+          for(int i=1;i<=AllMemoryExtEE1_7Yach;i++){
              //Serial.print("=== Начало цикла Адрес контроль в цикле: ==="); Serial.println(eeAddress);
              //Проверяем соответствует ли считанная строка нашим параметрам
              bool GoNext=false; // Разрешает или запрещает проход к секции вывода 
@@ -532,27 +933,26 @@ void ReadLineDays(const byte& Line,const byte& Days){
                   //Serial.print("ReadYear:"); Serial.print(ReadYear);            Serial.print(" TodayYear:"); Serial.println(TodayYear);
 
                   //* Cлучай если сейчас не первый месяц года. Прочитать верхнюю половину
-                  if(ReadYear == TodayYear  && 
+                  if(ReadYear  == TodayYear  && 
                      ReadMonth == TodayMonth && 
-                     ReadDay <= TodayDay &&  ReadDay >0 ){ //Если считанный год и месяц совпали с текущим и считанный день меньше или равен текущему и считанный день больше текущий день - минус заданный из BT день
-                  GoNext=true; // Разрешить проход
-                  //Serial.print("GoNext= true");    Serial.print(" eeAddress:"); Serial.println(eeAddress);
-                  eeAddress-=3;countPodchet++;// Serial.println("countPodchet++"); 
+                     ReadDay   <= TodayDay   &&  ReadDay >0 ){ //Если считанный год и месяц совпали с текущим и считанный день меньше или равен текущему и считанный день больше текущий день - минус заданный из BT день
+                        GoNext=true; // Разрешить проход  //Serial.print("GoNext= true");    Serial.print(" eeAddress:"); Serial.println(eeAddress);
+                        eeAddress-=3;countPodchet++;// Serial.println("countPodchet++"); 
                   }
-                  //* Cлучай если сейчас не первый месяц года. Прочитать нижнюю половину
-                //  /*
+                  // Cлучай если сейчас не первый месяц года. Прочитать нижнюю половину
+              
                   else if(ReadYear  ==  TodayYear     &&  // В этом году
                           ReadMonth == (TodayMonth-1) &&  // Копаемся в прошлом месяце
                           ReadDay>=ZaxvatDayLastMonth) {  // От захваченного дня до конца месяца прошлого
                       GoNext=true; // Разрешить проход
                       eeAddress-=3;countPodchet++;    
                   }
-                //  */
-                  else{  eeAddress+=4; GoNext=false; 
+              
+                  else{  eeAddress+=5; GoNext=false; 
                   //Serial.print("Выходим из else с ползунком:"); Serial.println(eeAddress);
                   }
              }
-             else{ eeAddress-=1;eeAddress+=7;} //Если линия не та что мы хотели вывести то откатить считанный адрес. И перепрыгнуть на следущую ячейку данных
+             else{ eeAddress-=1;eeAddress+=8;} //Если линия не та что мы хотели вывести то откатить считанный адрес. И перепрыгнуть на следущую ячейку данных
                  //Проверяем соответствует ли считанная строка нашим параметрам. Если да то GoNext cтановится true
              if(GoNext == true){
                   //Serial.print("GoNext eeAddress:"); Serial.println(eeAddress);Serial.print("");
@@ -565,33 +965,45 @@ void ReadLineDays(const byte& Line,const byte& Days){
                   byte ReadHour = readEEPROM (rom, eeAddress);     eeAddress+=1;
                   byte ReadMin = readEEPROM (rom, eeAddress);      eeAddress+=1; 
                   byte ReadSec = readEEPROM (rom, eeAddress);      eeAddress+=1;
+
+                  char Storona = readEEPROM (rom, eeAddress);      eeAddress+=1;
+                  if(Storona=='B'){                BackCountPodchet++;          }
                   #ifdef SendBT_Tubler
                     Serial3.print ("#");Serial3.print (i);Serial3.print (" ");
                     Serial3.print (ReadLine, DEC);  Serial3.print (" ");
                     Serial3.print (ReadDay, DEC);   Serial3.print ("."); Serial3.print (ReadMonth, DEC); Serial3.print ("."); Serial3.print (ReadYear, DEC);   Serial3.print (" ");
-                    Serial3.print (ReadHour, DEC);  Serial3.print (":"); Serial3.print (ReadMin, DEC);   Serial3.print (":"); Serial3.println (ReadSec, DEC);          
+                    Serial3.print (ReadHour, DEC);  Serial3.print (":"); Serial3.print (ReadMin, DEC);   Serial3.print (":"); Serial3.print (ReadSec, DEC);          
+                    Serial3.print (" ");Serial3.println (Storona);  
                   #else
                     Serial.print ("#");Serial.print (i);Serial.print (" ");
                     Serial.print (ReadLine, DEC);  Serial.print (" ");
                     Serial.print (ReadDay, DEC);   Serial.print ("."); Serial.print (ReadMonth, DEC); Serial.print ("."); Serial.print (ReadYear, DEC);   Serial.print (" ");
-                    Serial.print (ReadHour, DEC);  Serial.print (":"); Serial.print (ReadMin, DEC);   Serial.print (":"); Serial.println (ReadSec, DEC);  
+                    Serial.print (ReadHour, DEC);  Serial.print (":"); Serial.print (ReadMin, DEC);   Serial.print (":"); Serial.print (ReadSec, DEC);  
+                    Serial.print (" ");Serial.println (Storona);
                   #endif
               }
               //Serial.print("=== Конец цикла Адрес контроль в цикле: ==="); Serial.println(eeAddress);
             }
         #ifdef SendBT_Tubler
         Serial3.print("Кол-во найденных проходов:"); Serial3.println(countPodchet); 
+        Serial3.print(F("Обратных проходов:"));  Serial3.print (BackCountPodchet); 
+        Serial3.print(F(" Прямых проходов:"));  Serial3.println (countPodchet-BackCountPodchet);     
         #else
-        Serial.print("Кол-во найденных проходов:"); Serial.println(countPodchet);         
+        Serial.print("Кол-во найденных проходов:");  Serial.println(countPodchet); 
+        Serial.print(F(" Обратных проходов:"));  Serial.print (BackCountPodchet); 
+        Serial.print(F(" Прямых проходов:"));  Serial.println (countPodchet-BackCountPodchet);     
         #endif
         eeAddress=old_eeAddress;
       // Cдесь сортировка будет по введённой линии и дням показ (Если дней введённых меньше чем даёт текущая дата)
       }                    // Если сейчас не первый месяц года 
-      else{    // Если сейчас ПЕРВЫЙ месяц года 
+     else{    // Если сейчас ПЕРВЫЙ месяц года 
                // Cдесь сортировка будет по введённой линии и дням показ (Если дней введённых меньше чем даёт текущая дата)
           static int old_eeAddress = eeAddress; // Присваиваем переменной old_eeAddress а чтоб не сбить ползунок а затем вернём всё назад
           eeAddress=10; //Устанавливаем ползунок в начале адресов для чтения
+
           uint16_t countPodchet=0; // Временная переменная чтобы обьявить сколько же раз за заданный период считалась метка
+          uint16_t BackCountPodchet=0; // Подсчёт обратных проходов
+
           for(int i=1;i<=AllMemoryExtEE1_7Yach;i++){
              //Serial.print("=== Начало цикла Адрес контроль в цикле: ==="); Serial.println(eeAddress);
              //Проверяем соответствует ли считанная строка нашим параметрам
@@ -616,20 +1028,20 @@ void ReadLineDays(const byte& Line,const byte& Days){
                   //Serial.print("GoNext= true");    Serial.print(" eeAddress:"); Serial.println(eeAddress);
                   eeAddress-=3;countPodchet++;// Serial.println("countPodchet++"); 
                   }
-                  //* Cлучай если сейчас ПЕРВЫЙ месяц года. Прочитать нижнюю половину
-                //  /*
+                  // Cлучай если сейчас ПЕРВЫЙ месяц года. Прочитать нижнюю половину
+                //  
                   else if(ReadYear  ==  (TodayYear-1) &&  // В прошлом году
                           ReadMonth == 12 &&                  // Копаемся в последнем месяце прошлого года
                           ReadDay>=ZaxvatDayLastMonth) {      // От захваченного дня до конца последнего месяца прошлого года
                       GoNext=true; // Разрешить проход
                       eeAddress-=3;countPodchet++;    
                   }
-                //  */
-                  else{  eeAddress+=4; GoNext=false; 
+                //  
+                  else{  eeAddress+=5; GoNext=false; 
                   //Serial.print("Выходим из else с ползунком:"); Serial.println(eeAddress);
                   }
              }
-             else{ eeAddress-=1;eeAddress+=7;} //Если линия не та что мы хотели вывести то откатить считанный адрес. И перепрыгнуть на следущую ячейку данных
+             else{ eeAddress-=1;eeAddress+=8;} //Если линия не та что мы хотели вывести то откатить считанный адрес. И перепрыгнуть на следущую ячейку данных
                  //Проверяем соответствует ли считанная строка нашим параметрам. Если да то GoNext cтановится true
              if(GoNext == true){
                  //Serial.print("GoNext eeAddress:"); Serial.println(eeAddress);Serial.print("");
@@ -642,40 +1054,50 @@ void ReadLineDays(const byte& Line,const byte& Days){
                    byte ReadHour = readEEPROM (rom, eeAddress);     eeAddress+=1;
                    byte ReadMin = readEEPROM (rom, eeAddress);      eeAddress+=1; 
                    byte ReadSec = readEEPROM (rom, eeAddress);      eeAddress+=1;
+
+                   char Storona = readEEPROM (rom, eeAddress);      eeAddress+=1;
+                   if(Storona=='B'){                BackCountPodchet++;          }
                   #ifdef SendBT_Tubler
                     Serial3.print ("#");Serial3.print (i);Serial3.print (" ");
                     Serial3.print (ReadLine, DEC);  Serial3.print (" ");
                     Serial3.print (ReadDay, DEC);   Serial3.print ("."); Serial3.print (ReadMonth, DEC); Serial3.print ("."); Serial3.print (ReadYear, DEC);   Serial3.print (" ");
-                    Serial3.print (ReadHour, DEC);  Serial3.print (":"); Serial3.print (ReadMin, DEC);   Serial3.print (":"); Serial3.println (ReadSec, DEC);          
+                    Serial3.print (ReadHour, DEC);  Serial3.print (":"); Serial3.print (ReadMin, DEC);   Serial3.print (":"); Serial3.print (ReadSec, DEC);          
+                    Serial3.print (" ");Serial3.println (Storona);  
                   #else
                     Serial.print ("#");Serial.print (i);Serial.print (" ");
                     Serial.print (ReadLine, DEC);  Serial.print (" ");
                     Serial.print (ReadDay, DEC);   Serial.print ("."); Serial.print (ReadMonth, DEC); Serial.print ("."); Serial.print (ReadYear, DEC);   Serial.print (" ");
-                    Serial.print (ReadHour, DEC);  Serial.print (":"); Serial.print (ReadMin, DEC);   Serial.print (":"); Serial.println (ReadSec, DEC);  
+                    Serial.print (ReadHour, DEC);  Serial.print (":"); Serial.print (ReadMin, DEC);   Serial.print (":"); Serial.print (ReadSec, DEC);  
+                    Serial.print (" ");Serial.println (Storona, DEC);
                   #endif
              }
               //Serial.print("=== Конец цикла Адрес контроль в цикле: ==="); Serial.println(eeAddress);
             }
         #ifdef SendBT_Tubler
         Serial3.print("Кол-во найденных проходов:"); Serial3.println(countPodchet); 
+        Serial3.print(F(" Обратных проходов:"));  Serial3.print (BackCountPodchet); 
+        Serial3.print(F(" Прямых проходов:"));  Serial3.println (countPodchet-BackCountPodchet);
         #else
-        Serial.print("Кол-во найденных проходов:"); Serial.println(countPodchet); 
+        Serial.print("Кол-во найденных проходов:");  Serial.println(countPodchet); 
+        Serial.print(F(" Обратных проходов:"));  Serial.print (BackCountPodchet); 
+        Serial.print(F(" Прямых проходов:"));  Serial.println (countPodchet-BackCountPodchet);  
         #endif
         eeAddress=old_eeAddress;
       // Cдесь сортировка будет по введённой линии и дням показ (Если дней введённых меньше чем даёт текущая дата)
       }        // Если сейчас ПЕРВЫЙ месяц года
-       
- }
+     
+     }
+    if(Days > 30){ // Если ввели более 30ти дней то отписать об этом
+              #ifdef SendBT_Tubler
+              Serial3.println(F("Не больше 30ти дней! Введи 30 или меньше"));
+              #else
+              Serial.println(F("Не больше 30ти дней! Введи 30 или меньше"));
+              #endif
+          }
 
-  else {
-    #ifdef SendBT_Tubler
-      Serial3.println(F("Не больше 30ти дней! Введи 30 или меньше"));
-    #else
-      Serial.println(F("Не больше 30ти дней! Введи 30 или меньше"));
-    #endif
-    }
-}                 
+} // Конец функции
 
+ 
 
 
 
@@ -901,3 +1323,22 @@ byte readEEPROM (byte device, unsigned int addr )
   };
     EEPROM.put(eeAddress, customVar);
     */
+
+
+
+   /*
+     else if(TodayMonth ==3 ){         // Обработка February . Стоим на месяце Март.
+        if(Days<=28){ //Если введённых дней 28 и меньше то отрабатывает корректно.
+            #ifdef SendBT_Tubler
+              Serial3.print(F("Будут выведены данные от "));  Serial3.print(ZaxvatDayLastMonth); Serial3.print(".");  Serial3.print(TodayMonth-1); Serial3.print("."); Serial3.print(TodayYear); 
+              Serial3.print(" До "); Serial3.print(TodayDay); Serial3.print("."); Serial3.print(TodayMonth); Serial3.print("."); Serial3.println(TodayYear); 
+            #else
+              Serial.print(F("Будут выведены данные от ")); Serial.print(ZaxvatDayLastMonth); Serial.print(".");  Serial.print(TodayMonth-1); Serial.print("."); Serial.print(TodayYear); 
+              Serial.print(" До "); Serial.print(TodayDay); Serial.print("."); Serial.print(TodayMonth); Serial.print("."); Serial.println(TodayYear); 
+            #endif
+        }
+   
+        else{ // Если введённых дней больше 28 
+
+        }
+     */

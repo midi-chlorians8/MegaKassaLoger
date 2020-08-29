@@ -245,15 +245,18 @@ byte readEEPROM (byte device, unsigned int addr, byte * data, byte len );
 byte readEEPROM (byte device, unsigned int addr );
 void TmimgRefresh();
 // BT
-String inputString = "";         // a String to hold incoming data
-bool stringComplete = false;  // whether the string is complete
+String inputStringHard = "";         // a String to hold incoming data
+bool stringCompleteHard = false;  // whether the string is complete
+
+String inputStringBT = "";         // a String to hold incoming data
+bool stringCompleteBT = false;  // whether the string is complete
 String teststring = "Hello User. Введи запрос в формате l2d2";
 
 byte EnteredLine; //Какую мы ввели линию чтоб посмотреть распечатку лога с неё
 uint8_t posL;     //Позиция для парсинга
 byte EnteredDays; //Сколько мы ввели дней чтобы увидеть за сколько дней давать лог
 uint8_t posD;     //Позиция для парсинга
-#define resetPin  12
+//#define resetPin  12
 // BT
 
 void PinMode(){
