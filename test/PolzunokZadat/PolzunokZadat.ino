@@ -10,7 +10,7 @@ String Date_time_line_count2 = "L2:888";
 String Date_time_line_count3 = "L6:556";
 String Date_time_line_count4 = "L7:777";
 */
-String EeAdrStr = "10";
+String EeAdrStr = "32182";
 // Written by Nick Gammon
 // February 2011
 
